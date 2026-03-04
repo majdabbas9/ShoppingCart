@@ -15,15 +15,19 @@ public class Item {
 
     public Item(String name, int quantity, int price) {
         if (name == null || name.trim().isEmpty()) {
+            Logger.getInstance().error("Attempted to create item with empty name.");
             throw new IllegalArgumentException("Name cannot be empty");
         }
         if (stockRegistry.containsKey(name)) {
+            Logger.getInstance().error("Attempted to create duplicate item: " + name);
             throw new IllegalArgumentException("Item with name '" + name + "' already exists");
         }
         if (quantity < 0) {
+            Logger.getInstance().error("Attempted to create item with negative quantity: " + quantity);
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
         if (price <= 0) {
+            Logger.getInstance().error("Attempted to create item with non-positive price: " + price);
             throw new IllegalArgumentException("Price must be positive");
         }
 
@@ -32,6 +36,8 @@ public class Item {
         this.quantity = quantity;
         this.price = price;
 
+        Logger.getInstance()
+                .info("Item created: " + name + " (ID: " + id + ", Qty: " + quantity + ", Price: " + price + ")");
         stockRegistry.put(name, this);
     }
 
@@ -65,6 +71,7 @@ public class Item {
         }
         this.quantity += quantity;
     }
+
     public void decreaseQuantity(int quantity) {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");

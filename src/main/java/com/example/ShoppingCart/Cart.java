@@ -15,27 +15,36 @@ public class Cart {
         }
         this.discountPercentage = discountPercentage;
     }
+
     /**
      * Add an item to the cart with the specified quantity.
      * If the item already exists, adds to the existing quantity.
      */
     public void addItem(Item item, int quantity) {
         if (item == null) {
+            Logger.getInstance().error("Attempted to add a null item to the cart.");
             throw new IllegalArgumentException("Item cannot be null");
         }
         String key = item.getName();
         if (items.containsKey(key)) {
             CartItem existing = items.get(key);
+            Logger.getInstance().info("Updating quantity for existing item: " + key + " - adding " + quantity);
             existing.updateQuantity(existing.getQuantity() + quantity);
         } else {
+            Logger.getInstance().info("Adding new item to cart: " + key + " with quantity " + quantity);
             items.put(key, new CartItem(item, quantity));
         }
     }
 
     public void removeItem(String itemName) {
         CartItem cartItem = items.get(itemName);
-        cartItem.getStockItem().increaseQuantity(cartItem.getQuantity());
-        items.remove(itemName);
+        if (cartItem != null) {
+            Logger.getInstance().warn("Removing item from cart: " + itemName);
+            cartItem.getStockItem().increaseQuantity(cartItem.getQuantity());
+            items.remove(itemName);
+        } else {
+            Logger.getInstance().warn("Attempted to remove non-existent item: " + itemName);
+        }
     }
 
     public void removeItem(Item item) {
@@ -89,6 +98,7 @@ public class Cart {
      * Clear the entire cart.
      */
     public void clear() {
+        Logger.getInstance().info("Clearing the cart...");
         for (CartItem item : items.values()) {
             item.getStockItem().increaseQuantity(item.getQuantity());
         }

@@ -1,6 +1,7 @@
 package com.example.ShoppingCart.service;
 
 import com.example.ShoppingCart.Cart;
+import com.example.ShoppingCart.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -13,6 +14,7 @@ public class CartStore {
 
     public String createCart(double discountPercentage) {
         String cartId = UUID.randomUUID().toString();
+        Logger.getInstance().info("Creating new cart with ID: " + cartId + " and discount " + discountPercentage + "%");
         carts.put(cartId, new Cart(discountPercentage));
         return cartId;
     }

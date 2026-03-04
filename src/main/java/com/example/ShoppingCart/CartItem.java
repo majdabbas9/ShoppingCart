@@ -6,9 +6,12 @@ public class CartItem {
 
     public CartItem(Item stockItem, int quantity) {
         if (quantity <= 0) {
+            Logger.getInstance().error("Attempted to create CartItem with non-positive quantity: " + quantity);
             throw new IllegalArgumentException("Quantity must be positive");
         }
         if (quantity > stockItem.getQuantity()) {
+            Logger.getInstance().error("Not enough stock for item: " + stockItem.getName() + " (Required: " + quantity
+                    + ", Available: " + stockItem.getQuantity() + ")");
             throw new IllegalArgumentException("Not enough quantity in stock");
         }
         stockItem.decreaseQuantity(quantity);
