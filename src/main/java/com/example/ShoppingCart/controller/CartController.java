@@ -11,6 +11,7 @@ import com.example.ShoppingCart.service.Item;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.logging.Logger;
 
@@ -26,7 +27,7 @@ public class CartController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createCart(@RequestBody CreateCartRequest request) {
+    public ResponseEntity<?> createCart(@Valid @RequestBody CreateCartRequest request) {
         try {
             logger.info("Received request to create cart with discount: " + request.discountPercentage() + "%");
             String cartId = cartStore.createCart(request.discountPercentage());
@@ -50,7 +51,7 @@ public class CartController {
     }
 
     @PostMapping("/{cartId}/items")
-    public ResponseEntity<?> addItemToCart(@PathVariable String cartId, @RequestBody AddToCartRequest request) {
+    public ResponseEntity<?> addItemToCart(@PathVariable String cartId, @Valid @RequestBody AddToCartRequest request) {
         if (!cartStore.cartExists(cartId)) {
             logger.warning("Attempted to add items to non-existent cart: " + cartId);
             return ResponseEntity.notFound().build();
@@ -75,7 +76,7 @@ public class CartController {
 
     @PutMapping("/{cartId}/items/{itemName}")
     public ResponseEntity<?> updateCartItem(@PathVariable String cartId, @PathVariable String itemName,
-            @RequestBody UpdateCartItemRequest request) {
+            @Valid @RequestBody UpdateCartItemRequest request) {
         if (!cartStore.cartExists(cartId)) {
             logger.warning("Attempted to update item in non-existent cart: " + cartId);
             return ResponseEntity.notFound().build();

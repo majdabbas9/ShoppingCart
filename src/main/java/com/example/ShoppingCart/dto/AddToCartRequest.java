@@ -1,3 +1,9 @@
 package com.example.ShoppingCart.dto;
 
-public record AddToCartRequest(String itemName, int quantity) {}
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+
+public record AddToCartRequest(
+        @NotBlank(message = "Item name is required") String itemName,
+        @Min(value = 1, message = "Quantity must be at least 1") int quantity) {
+}

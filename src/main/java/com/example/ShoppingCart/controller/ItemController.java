@@ -7,6 +7,7 @@ import com.example.ShoppingCart.service.Item;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import jakarta.validation.Valid;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -17,7 +18,7 @@ public class ItemController {
     private static final Logger logger = Logger.getLogger(ItemController.class.getName());
 
     @PostMapping
-    public ResponseEntity<?> createItem(@RequestBody CreateItemRequest request) {
+    public ResponseEntity<?> createItem(@Valid @RequestBody CreateItemRequest request) {
         try {
             logger.info("Received request to create item: " + request.name());
             Item item = new Item(request.name(), request.quantity(), request.price());
