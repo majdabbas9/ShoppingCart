@@ -5,15 +5,26 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "items")
 public class Item {
     private static final Logger logger = Logger.getLogger(Item.class.getName());
-    private static int currID = 0;
     private static final Map<String, Item> stockRegistry = new HashMap<>();
 
-    private final int id;
-    private final String name;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "name", nullable = false, unique = true)
+    private String name;
+
+    @Column(name = "quantity", nullable = false)
     private int quantity;
-    private final int price;
+
+    @Column(name = "price", nullable = false)
+    private int price;
 
     public Item(String name, int quantity, int price) {
         if (name == null || name.trim().isEmpty()) {
@@ -29,7 +40,6 @@ public class Item {
             throw new IllegalArgumentException("Price must be positive");
         }
 
-        this.id = ++currID;
         this.name = name;
         this.quantity = quantity;
         this.price = price;

@@ -1,11 +1,30 @@
 package com.example.ShoppingCart.service;
 
+import jakarta.persistence.*;
 import java.util.logging.Logger;
 
+@Entity
+@Table(name = "cart_items")
 public class CartItem {
     private static final Logger logger = Logger.getLogger(CartItem.class.getName());
-    private final Item stockItem;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id")
+    private Cart cart;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "item_id")
+    private Item stockItem;
+
+    @Column(nullable = false)
     private int quantity;
+
+    protected CartItem() {
+    }
 
     public CartItem(Item stockItem, int quantity) throws IllegalArgumentException {
         if (quantity <= 0) {
@@ -17,6 +36,22 @@ public class CartItem {
         stockItem.decreaseQuantity(quantity);
         this.stockItem = stockItem;
         this.quantity = quantity;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Cart getCart() {
+        return cart;
+    }
+
+    public void setCart(Cart cart) {
+        this.cart = cart;
     }
 
     public Item getStockItem() {

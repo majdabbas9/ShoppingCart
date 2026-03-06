@@ -1,21 +1,41 @@
 package com.example.ShoppingCart.service;
 
+import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
+@Entity
+@Table(name = "carts")
 public class Cart {
     private static final Logger logger = Logger.getLogger(Cart.class.getName());
-    private final Map<String, CartItem> items = new ConcurrentHashMap<>();
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CartItem> items = new ArrayList<>();
+
+    @Column(name = "discount_percentage", nullable = false)
     private double discountPercentage = 0;
+
+    protected Cart() {
+    }
 
     public Cart(double discountPercentage) throws IllegalArgumentException {
         if (discountPercentage < 0 || discountPercentage > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
         this.discountPercentage = discountPercentage;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     /**
@@ -26,36 +46,49 @@ public class Cart {
         if (item == null) {
             throw new IllegalArgumentException("Item cannot be null");
         }
-        String key = item.getName();
-        if (items.containsKey(key)) {
-            CartItem existing = items.get(key);
-            logger.info("Updating quantity for existing item: " + key + " - adding " + quantity);
+        CartItem existing = items.stream()
+                .filter(ci -> ci.getStockItem().getName().equals(item.getName()))
+                .findFirst()
+                .orElse(null);
+
+        if (existing != null) {
+            logger.info("Updating quantity for existing item: " + item.getName() + " - adding " + quantity);
             existing.updateQuantity(existing.getQuantity() + quantity);
         } else {
-            logger.info("Adding new item to cart: " + key + " with quantity " + quantity);
-            items.put(key, new CartItem(item, quantity));
+            logger.info("Adding new item to cart: " + item.getName() + " with quantity " + quantity);
+            CartItem newItem = new CartItem(item, quantity);
+            newItem.setCart(this);
+            items.add(newItem);
         }
     }
 
     public void removeItem(String itemName) {
-        CartItem cartItem = items.get(itemName);
+        CartItem cartItem = items.stream()
+                .filter(ci -> ci.getStockItem().getName().equals(itemName))
+                .findFirst()
+                .orElse(null);
+
         if (cartItem != null) {
             logger.warning("Removing item from cart: " + itemName);
             cartItem.getStockItem().increaseQuantity(cartItem.getQuantity());
-            items.remove(itemName);
+            items.remove(cartItem);
         } else {
             logger.warning("Attempted to remove non-existent item: " + itemName);
         }
     }
 
     public void removeItem(Item item) {
-        CartItem cartItem = items.get(item.getName());
-        cartItem.getStockItem().increaseQuantity(cartItem.getQuantity());
-        items.remove(item.getName());
+        if (item != null) {
+            removeItem(item.getName());
+        }
     }
 
     public void updateItemQuantity(String itemName, int quantity) throws IllegalArgumentException {
-        CartItem cartItem = items.get(itemName);
+        CartItem cartItem = items.stream()
+                .filter(ci -> ci.getStockItem().getName().equals(itemName))
+                .findFirst()
+                .orElse(null);
+
         if (cartItem == null) {
             throw new IllegalArgumentException("Item not in cart: " + itemName);
         }
@@ -67,7 +100,7 @@ public class Cart {
     }
 
     public int getSubtotal() {
-        return items.values().stream()
+        return items.stream()
                 .mapToInt(CartItem::getTotalPrice)
                 .sum();
     }
@@ -100,7 +133,7 @@ public class Cart {
      */
     public void clear() {
         logger.info("Clearing the cart...");
-        for (CartItem item : items.values()) {
+        for (CartItem item : items) {
             item.getStockItem().increaseQuantity(item.getQuantity());
         }
         items.clear();
@@ -111,7 +144,7 @@ public class Cart {
      * Get all items in the cart.
      */
     public List<CartItem> getItems() {
-        return new ArrayList<>(items.values());
+        return new ArrayList<>(items);
     }
 
     public boolean isEmpty() {
