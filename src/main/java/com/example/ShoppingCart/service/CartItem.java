@@ -7,15 +7,12 @@ public class CartItem {
     private final Item stockItem;
     private int quantity;
 
-    public CartItem(Item stockItem, int quantity) {
+    public CartItem(Item stockItem, int quantity) throws IllegalArgumentException {
         if (quantity <= 0) {
-            logger.severe("Attempted to create CartItem with non-positive quantity: " + quantity);
             throw new IllegalArgumentException("Quantity must be positive");
         }
         if (quantity > stockItem.getQuantity()) {
-            logger.severe("Not enough stock for item: " + stockItem.getName() + " (Required: " + quantity
-                    + ", Available: " + stockItem.getQuantity() + ")");
-            throw new IllegalArgumentException("Not enough quantity in stock");
+            throw new IllegalArgumentException("Not enough quantity in stock for item " + stockItem.getName());
         }
         stockItem.decreaseQuantity(quantity);
         this.stockItem = stockItem;
@@ -30,7 +27,7 @@ public class CartItem {
         return quantity;
     }
 
-    public void updateQuantity(int newQuantity) {
+    public void updateQuantity(int newQuantity) throws IllegalArgumentException {
         if (newQuantity <= 0) {
             throw new IllegalArgumentException("Quantity must be positive");
         }
@@ -38,9 +35,17 @@ public class CartItem {
             throw new IllegalArgumentException("Not enough quantity in stock");
         }
         if (newQuantity > this.quantity) {
-            this.stockItem.decreaseQuantity(newQuantity - this.quantity);
+            try {
+                this.stockItem.decreaseQuantity(newQuantity - this.quantity);
+            } catch (IllegalArgumentException e) {
+                logger.severe("Failed to update quantity: " + e.getMessage());
+            }
         } else {
-            this.stockItem.increaseQuantity(this.quantity - newQuantity);
+            try {
+                this.stockItem.increaseQuantity(this.quantity - newQuantity);
+            } catch (IllegalArgumentException e) {
+                logger.severe("Failed to update quantity: " + e.getMessage());
+            }
         }
         this.quantity = newQuantity;
     }

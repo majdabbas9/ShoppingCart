@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
 import java.util.logging.Logger;
 
 public class Cart {
@@ -12,7 +11,7 @@ public class Cart {
     private final Map<String, CartItem> items = new ConcurrentHashMap<>();
     private double discountPercentage = 0;
 
-    public Cart(double discountPercentage) {
+    public Cart(double discountPercentage) throws IllegalArgumentException {
         if (discountPercentage < 0 || discountPercentage > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }
@@ -23,9 +22,8 @@ public class Cart {
      * Add an item to the cart with the specified quantity.
      * If the item already exists, adds to the existing quantity.
      */
-    public void addItem(Item item, int quantity) {
+    public void addItem(Item item, int quantity) throws IllegalArgumentException {
         if (item == null) {
-            logger.severe("Attempted to add a null item to the cart.");
             throw new IllegalArgumentException("Item cannot be null");
         }
         String key = item.getName();
@@ -56,7 +54,7 @@ public class Cart {
         items.remove(item.getName());
     }
 
-    public void updateItemQuantity(String itemName, int quantity) {
+    public void updateItemQuantity(String itemName, int quantity) throws IllegalArgumentException {
         CartItem cartItem = items.get(itemName);
         if (cartItem == null) {
             throw new IllegalArgumentException("Item not in cart: " + itemName);
@@ -77,7 +75,7 @@ public class Cart {
     /**
      * Apply a discount percentage (0-100).
      */
-    public void setDiscountPercentage(double discountPercentage) {
+    public void setDiscountPercentage(double discountPercentage) throws IllegalArgumentException {
         if (discountPercentage < 0 || discountPercentage > 100) {
             throw new IllegalArgumentException("Discount must be between 0 and 100");
         }

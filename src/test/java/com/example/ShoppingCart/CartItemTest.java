@@ -2,6 +2,8 @@ package com.example.ShoppingCart;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -68,7 +70,7 @@ class CartItemTest {
         void throwsWhenQuantityExceedsStock() {
             IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
                     () -> new CartItem(item, 25));
-            assertEquals("Not enough quantity in stock", ex.getMessage());
+            assertTrue(ex.getMessage().startsWith("Not enough quantity in stock"));
         }
     }
 

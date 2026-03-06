@@ -3,7 +3,6 @@ package com.example.ShoppingCart.service;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.logging.Logger;
 
 public class Item {
@@ -18,19 +17,15 @@ public class Item {
 
     public Item(String name, int quantity, int price) {
         if (name == null || name.trim().isEmpty()) {
-            logger.severe("Attempted to create item with empty name.");
             throw new IllegalArgumentException("Name cannot be empty");
         }
         if (stockRegistry.containsKey(name)) {
-            logger.severe("Attempted to create duplicate item: " + name);
             throw new IllegalArgumentException("Item with name '" + name + "' already exists");
         }
         if (quantity < 0) {
-            logger.severe("Attempted to create item with negative quantity: " + quantity);
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
         if (price <= 0) {
-            logger.severe("Attempted to create item with non-positive price: " + price);
             throw new IllegalArgumentException("Price must be positive");
         }
 
@@ -67,14 +62,14 @@ public class Item {
         return price;
     }
 
-    public void increaseQuantity(int quantity) {
+    public void increaseQuantity(int quantity) throws IllegalArgumentException {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
         this.quantity += quantity;
     }
 
-    public void decreaseQuantity(int quantity) {
+    public void decreaseQuantity(int quantity) throws IllegalArgumentException {
         if (quantity < 0) {
             throw new IllegalArgumentException("Quantity cannot be negative");
         }
